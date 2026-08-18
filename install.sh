@@ -1,35 +1,29 @@
 #!/bin/bash
-echo "========================================="
-echo "   Instalando Kriptia Programming Language"
-echo "========================================="
 
-# 1. Verificar si g++ está instalado
-if ! command -v g++ &> /dev/null; then
-    echo "[!] Error: Se necesita un compilador de C++ (g++). Instálalo con: pkg install build-essential"
+echo "[+] Instalando Kriptia Programming Language..."
+
+# 1. Compilar el motor C++ con optimización máxima (-O3)
+g++ kriptia_core.cpp -o kriptiac -O3
+
+# 2. Verificar si la compilación fue exitosa
+if [ -f "kriptiac" ]; then
+    echo "[+] Compilación exitosa del núcleo nativo."
+    
+    # 3. Instalar globalmente según el entorno (Termux o Linux estándar)
+    if [ -d "/data/data/com.termux/files/usr/bin" ]; then
+        cp kriptiac /data/data/com.termux/files/usr/bin/kriptia
+        chmod +x /data/data/com.termux/files/usr/bin/kriptia
+        echo "[Éxito] Kriptia instalado globalmente en Termux."
+    elif [ -d "/usr/local/bin" ]; then
+        sudo cp kriptiac /usr/local/bin/kriptia
+        sudo chmod +x /usr/local/bin/kriptia
+        echo "[Éxito] Kriptia instalado globalmente en Linux."
+    else
+        echo "[Aviso] No se pudo mover a rutas globales, pero puedes usarlo localmente."
+    fi
+else
+    echo "[Error] La compilación falló."
     exit 1
 fi
 
-# 2. Descargar o clonar el código fuente temporalmente
-echo "[+] Descargando Kriptia..."
-git clone https://github.com/tu-usuario/kriptia-lang.git ~/.kriptia-src
-
-# 3. Compilar de forma nativa
-echo "[+] Compilando motor nativo..."
-cd ~/.kriptia-src
-g++ kriptia_core.cpp -o kriptia -O3
-
-# 4. Mover a la ruta global del sistema (compatible con Termux y Linux)
-if [ -d "/data/data/com.termux/files/usr/bin" ]; then
-    mv kriptia /data/data/com.termux/files/usr/bin/kriptia
-else
-    sudo mv kriptia /usr/local/bin/kriptia
-fi
-
-# 5. Limpieza
-cd ~
-rm -rf ~/.kriptia-src
-
-echo "========================================="
-echo " ¡Kriptia se ha instalado con éxito!"
-echo " Ejecuta tus programas usando: kriptia archivo.kriptia"
-echo "========================================="
+echo "[+] ¡Kriptia está listo para usarse!"
